@@ -6,6 +6,7 @@ import (
 
 	"github.com/pasdam/go-rest-util/pkg/restutil"
 	"github.com/pasdam/go-yahoo-finance-client/internal/pkg/requests/chart"
+	"github.com/pasdam/go-yahoo-finance-client/internal/pkg/requests/quote"
 )
 
 // Client is the client to use to interact with Yahoo Finance API
@@ -47,4 +48,22 @@ func (c *Client) Quotes(baseCurrency string, quoteCurrency string, fromTimestamp
 	}
 
 	return mapYahooResponseToQuote(response), nil
+}
+
+// CurrentRate retrieves the current exchange rate for the specified currency
+// pair
+func (c *Client) CurrentRate(baseCurrency string, quoteCurrency string) (*ExchangeRate, error) {
+
+	symbol := currencyPairSymbol(baseCurrency, quoteCurrency)
+
+	c.baseURL.Path = "v7/finance/quote"
+	c.baseURL.RawQuery = quote.Query(symbol)
+
+	response := &quote.Response{}
+	err := restutil.GetJSON(c.baseURL.String(), response)
+	if err != nil {
+		return nil, err
+	}
+
+	return mapQuoteResponseToQuote(response), nil
 }
