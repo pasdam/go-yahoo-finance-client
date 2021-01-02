@@ -1,4 +1,4 @@
-package client
+package chart
 
 import "testing"
 
@@ -31,7 +31,7 @@ func Test_quotesQuery(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.want, func(t *testing.T) {
-			if got := quotesQuery(tt.args.symbol, tt.args.fromTimestamp, tt.args.toTimestamp); got != tt.want {
+			if got := QuotesQuery(tt.args.symbol, tt.args.fromTimestamp, tt.args.toTimestamp); got != tt.want {
 				t.Errorf("quotesQuery() = %v, want %v", got, tt.want)
 			}
 		})

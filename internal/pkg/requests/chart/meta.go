@@ -1,6 +1,6 @@
-package client
+package chart
 
-type meta struct {
+type Meta struct {
 	Currency             string `json:"currency"`
 	Symbol               string `json:"symbol"`
 	DataGranularity      string `json:"dataGranularity"`

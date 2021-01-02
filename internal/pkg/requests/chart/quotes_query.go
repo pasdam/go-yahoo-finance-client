@@ -1,11 +1,11 @@
-package client
+package chart
 
 import (
 	"net/url"
 	"strconv"
 )
 
-func quotesQuery(symbol string, fromTimestamp uint64, toTimestamp uint64) string {
+func QuotesQuery(symbol string, fromTimestamp uint64, toTimestamp uint64) string {
 	values := url.Values{}
 	values.Add("period1", strconv.FormatUint(fromTimestamp, 10))
 	values.Add("period2", strconv.FormatUint(toTimestamp, 10))

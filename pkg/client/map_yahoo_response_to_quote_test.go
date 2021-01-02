@@ -3,11 +3,13 @@ package client
 import (
 	"reflect"
 	"testing"
+
+	"github.com/pasdam/go-yahoo-finance-client/internal/pkg/requests/chart"
 )
 
 func Test_mapYahooResponseToQuote(t *testing.T) {
 	type args struct {
-		content *quotesResponseContent
+		content *chart.QuotesResponseContent
 	}
 	tests := []struct {
 		name       string
@@ -17,13 +19,13 @@ func Test_mapYahooResponseToQuote(t *testing.T) {
 		{
 			name: "",
 			args: args{
-				content: &quotesResponseContent{
-					Chart: quotesChart{
-						Results: []result{
+				content: &chart.QuotesResponseContent{
+					Chart: chart.QuotesChart{
+						Results: []chart.Result{
 							{
 								Timestamps: []uint64{0, 1, 2},
-								Indicators: indicators{
-									Quotes: []*indicatorQuote{
+								Indicators: chart.Indicators{
+									Quotes: []*chart.IndicatorQuote{
 										{
 											Open:   []float64{1, 11, 111},
 											High:   []float64{2, 22, 222},

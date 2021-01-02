@@ -1,6 +1,8 @@
 package client
 
-func mapYahooResponseToQuote(content *quotesResponseContent) (quotes []*PriceQuote) {
+import "github.com/pasdam/go-yahoo-finance-client/internal/pkg/requests/chart"
+
+func mapYahooResponseToQuote(content *chart.QuotesResponseContent) (quotes []*PriceQuote) {
 	timestamps := content.Chart.Results[0].Timestamps
 	volumes := content.Chart.Results[0].Indicators.Quotes[0].Volume
 	open := content.Chart.Results[0].Indicators.Quotes[0].Open
