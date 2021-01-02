@@ -1,9 +1,15 @@
 package client
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
 	"testing"
 
+	"github.com/pasdam/go-rest-util/pkg/restutil"
+	"github.com/pasdam/go-yahoo-finance-client/internal/pkg/requests/chart"
+	"github.com/pasdam/mockit/matchers/argument"
+	"github.com/pasdam/mockit/mockit"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -77,4 +83,128 @@ func TestClient_Quotes_Real(t *testing.T) {
 		},
 	}
 	assert.Equal(t, expected, quotes)
+}
+
+func TestClient_Quotes(t *testing.T) {
+	type mocks struct {
+		getBody *chart.QuotesResponseContent
+		getErr  error
+		query   string
+	}
+	type args struct {
+		baseCurrency  string
+		quoteCurrency string
+		fromTimestamp uint64
+		toTimestamp   uint64
+	}
+	tests := []struct {
+		name    string
+		mocks   mocks
+		args    args
+		want    []*PriceQuote
+		wantErr error
+	}{
+		{
+			name: "Should return parsed response when the request is successfull",
+			mocks: mocks{
+				getBody: &chart.QuotesResponseContent{
+					Chart: chart.QuotesChart{
+						Results: []chart.Result{
+							{
+								Meta:       chart.Meta{},
+								Timestamps: []uint64{1000, 2000},
+								Indicators: chart.Indicators{
+									Quotes: []*chart.IndicatorQuote{
+										{
+											Volume: []float64{10, 100},
+											Open:   []float64{20, 200},
+											High:   []float64{30, 300},
+											Low:    []float64{40, 400},
+											Close:  []float64{50, 500},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				query: "/EUR=X?interval=15m&period1=100&period2=200&symbol=EUR%3DX",
+			},
+			args: args{
+				baseCurrency:  "USD",
+				quoteCurrency: "EUR",
+				fromTimestamp: 100,
+				toTimestamp:   200,
+			},
+			want: []*PriceQuote{
+				{
+					Volume:    10,
+					Open:      20,
+					High:      30,
+					Low:       40,
+					Close:     50,
+					Timestamp: 1000,
+				},
+				{
+					Volume:    100,
+					Open:      200,
+					High:      300,
+					Low:       400,
+					Close:     500,
+					Timestamp: 2000,
+				},
+			},
+			wantErr: nil,
+		},
+		{
+			name: "Should propagate error if restutil.GetJSON raises it",
+			mocks: mocks{
+				getErr: errors.New("some-get-json-error"),
+				query:  "/AUD=X?interval=15m&period1=300&period2=400&symbol=AUD%3DX",
+			},
+			args: args{
+				baseCurrency:  "USD",
+				quoteCurrency: "AUD",
+				fromTimestamp: 300,
+				toTimestamp:   400,
+			},
+			want:    nil,
+			wantErr: errors.New("some-get-json-error"),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			url := fmt.Sprintf("http://localhost/v8/finance/chart%s", tt.mocks.query)
+			if tt.mocks.getBody != nil {
+				mock := mockit.MockFunc(t, restutil.Get)
+				jsonBody, _ := json.Marshal(tt.mocks.getBody)
+				mock.With(url).Return(jsonBody, nil)
+				mock.With(argument.Any).Return(nil, errors.New("Unexpected arguments"))
+			}
+			if tt.mocks.getErr != nil {
+				mock := mockit.MockFunc(t, restutil.GetJSON)
+				mock.With(url, argument.Any).Return(tt.mocks.getErr)
+				mock.With(argument.Any, argument.Any).Return(errors.New("Unexpected arguments"))
+			}
+			c, err := NewClientWithURL("http://localhost")
+			assert.Nil(t, err)
+
+			got, err := c.Quotes(tt.args.baseCurrency, tt.args.quoteCurrency, tt.args.fromTimestamp, tt.args.toTimestamp)
+
+			if tt.wantErr == nil {
+				assert.Nil(t, err)
+			} else {
+				assert.NotNil(t, err)
+				assert.Equal(t, tt.wantErr.Error(), err.Error())
+			}
+			if tt.want == nil {
+				assert.Nil(t, got)
+			} else {
+				assert.NotNil(t, got)
+				for i := 0; i < len(tt.want); i++ {
+					assert.Equal(t, got[i], tt.want[i])
+				}
+			}
+		})
+	}
 }
