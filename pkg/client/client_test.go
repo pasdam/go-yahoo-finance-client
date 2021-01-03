@@ -181,13 +181,13 @@ func TestClient_Quotes(t *testing.T) {
 			if tt.mocks.getBody != nil {
 				mock := mockit.MockFunc(t, restutil.Get)
 				jsonBody, _ := json.Marshal(tt.mocks.getBody)
-				mock.With(url).Return(jsonBody, nil)
-				mock.With(argument.Any).Return(nil, errors.New("Unexpected arguments"))
+				mock.With(url, nil).Return(jsonBody, nil)
+				mock.With(argument.Any, argument.Any).Return(nil, errors.New("Unexpected arguments"))
 			}
 			if tt.mocks.getErr != nil {
 				mock := mockit.MockFunc(t, restutil.GetJSON)
-				mock.With(url, argument.Any).Return(tt.mocks.getErr)
-				mock.With(argument.Any, argument.Any).Return(errors.New("Unexpected arguments"))
+				mock.With(url, nil, argument.Any).Return(tt.mocks.getErr)
+				mock.With(argument.Any, argument.Any, argument.Any).Return(errors.New("Unexpected arguments"))
 			}
 			c, err := NewClientWithURL("http://localhost")
 			assert.Nil(t, err)
@@ -275,13 +275,13 @@ func TestClient_CurrentRate(t *testing.T) {
 			if tt.mocks.getBody != nil {
 				mock := mockit.MockFunc(t, restutil.Get)
 				jsonBody, _ := json.Marshal(tt.mocks.getBody)
-				mock.With(url).Return(jsonBody, nil)
-				mock.With(argument.Any).Return(nil, errors.New("Unexpected arguments"))
+				mock.With(url, nil).Return(jsonBody, nil)
+				mock.With(argument.Any, argument.Any).Return(nil, errors.New("Unexpected arguments"))
 			}
 			if tt.mocks.getErr != nil {
 				mock := mockit.MockFunc(t, restutil.GetJSON)
-				mock.With(url, argument.Any).Return(tt.mocks.getErr)
-				mock.With(argument.Any, argument.Any).Return(errors.New("Unexpected arguments"))
+				mock.With(url, nil, argument.Any).Return(tt.mocks.getErr)
+				mock.With(argument.Any, argument.Any, argument.Any).Return(errors.New("Unexpected arguments"))
 			}
 			c, err := NewClientWithURL("http://localhost")
 			assert.Nil(t, err)

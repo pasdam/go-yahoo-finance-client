@@ -42,7 +42,7 @@ func (c *Client) Quotes(baseCurrency string, quoteCurrency string, fromTimestamp
 	c.baseURL.RawQuery = chart.QuotesQuery(symbol, fromTimestamp, toTimestamp)
 
 	response := &chart.QuotesResponseContent{}
-	err := restutil.GetJSON(c.baseURL.String(), response)
+	err := restutil.GetJSON(c.baseURL.String(), nil, response)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +60,7 @@ func (c *Client) CurrentRate(baseCurrency string, quoteCurrency string) (*Exchan
 	c.baseURL.RawQuery = quote.Query(symbol)
 
 	response := &quote.Response{}
-	err := restutil.GetJSON(c.baseURL.String(), response)
+	err := restutil.GetJSON(c.baseURL.String(), nil, response)
 	if err != nil {
 		return nil, err
 	}
