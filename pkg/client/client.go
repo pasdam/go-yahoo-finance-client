@@ -34,12 +34,12 @@ func NewClientWithURL(u string) (*Client, error) {
 
 // Quotes retrieves the price quotes for the specified currency pair within the
 // required timeframe
-func (c *Client) Quotes(baseCurrency string, quoteCurrency string, fromTimestamp uint64, toTimestamp uint64) ([]*PriceQuote, error) {
+func (c *Client) Quotes(baseCurrency string, quoteCurrency string, fromTimestamp uint64, toTimestamp uint64, interval Interval) ([]*PriceQuote, error) {
 
 	symbol := currencyPairSymbol(baseCurrency, quoteCurrency)
 
 	c.baseURL.Path = path.Join("v8/finance/chart", symbol)
-	c.baseURL.RawQuery = chart.QuotesQuery(symbol, fromTimestamp, toTimestamp)
+	c.baseURL.RawQuery = chart.QuotesQuery(symbol, fromTimestamp, toTimestamp, interval.String())
 
 	response := &chart.QuotesResponseContent{}
 	err := restutil.GetJSON(c.baseURL.String(), nil, response)

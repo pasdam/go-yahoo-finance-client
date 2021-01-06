@@ -62,7 +62,7 @@ func TestNewClientWithURL(t *testing.T) {
 func TestClient_Quotes_Real(t *testing.T) {
 	t.SkipNow()
 	c := NewClient()
-	quotes, err := c.Quotes("USD", "EUR", 1588766400, 1588767300)
+	quotes, err := c.Quotes("USD", "EUR", 1588766400, 1588767300, Interval15Minutes)
 
 	assert.Nil(t, err)
 	assert.Equal(t, 2, len(quotes))
@@ -99,6 +99,7 @@ func TestClient_Quotes(t *testing.T) {
 		quoteCurrency string
 		fromTimestamp uint64
 		toTimestamp   uint64
+		interval      Interval
 	}
 	tests := []struct {
 		name    string
@@ -138,6 +139,7 @@ func TestClient_Quotes(t *testing.T) {
 				quoteCurrency: "EUR",
 				fromTimestamp: 100,
 				toTimestamp:   200,
+				interval:      Interval15Minutes,
 			},
 			want: []*PriceQuote{
 				{
@@ -163,13 +165,14 @@ func TestClient_Quotes(t *testing.T) {
 			name: "Should propagate error if restutil.GetJSON raises it",
 			mocks: mocks{
 				getErr: errors.New("some-get-json-error"),
-				query:  "/AUD=X?interval=15m&period1=300&period2=400&symbol=AUD%3DX",
+				query:  "/AUD=X?interval=1d&period1=300&period2=400&symbol=AUD%3DX",
 			},
 			args: args{
 				baseCurrency:  "USD",
 				quoteCurrency: "AUD",
 				fromTimestamp: 300,
 				toTimestamp:   400,
+				interval:      Interval1Day,
 			},
 			want:    nil,
 			wantErr: errors.New("some-get-json-error"),
@@ -192,7 +195,7 @@ func TestClient_Quotes(t *testing.T) {
 			c, err := NewClientWithURL("http://localhost")
 			assert.Nil(t, err)
 
-			got, err := c.Quotes(tt.args.baseCurrency, tt.args.quoteCurrency, tt.args.fromTimestamp, tt.args.toTimestamp)
+			got, err := c.Quotes(tt.args.baseCurrency, tt.args.quoteCurrency, tt.args.fromTimestamp, tt.args.toTimestamp, tt.args.interval)
 
 			if tt.wantErr == nil {
 				assert.Nil(t, err)
