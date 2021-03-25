@@ -62,7 +62,7 @@ func TestNewClientWithURL(t *testing.T) {
 func TestClient_Quotes_Real(t *testing.T) {
 	t.SkipNow()
 	c := NewClient()
-	quotes, err := c.Quotes("USD", "EUR", 1588766400, 1588767300, Interval15Minutes)
+	quotes, err := c.Quotes("EUR=X", 1588766400, 1588767300, Interval15Minutes)
 
 	assert.Nil(t, err)
 	assert.Equal(t, 2, len(quotes))
@@ -95,8 +95,7 @@ func TestClient_Quotes(t *testing.T) {
 		query   string
 	}
 	type args struct {
-		baseCurrency  string
-		quoteCurrency string
+		symbol        string
 		fromTimestamp uint64
 		toTimestamp   uint64
 		interval      Interval
@@ -135,8 +134,7 @@ func TestClient_Quotes(t *testing.T) {
 				query: "/EUR=X?interval=15m&period1=100&period2=200&symbol=EUR%3DX",
 			},
 			args: args{
-				baseCurrency:  "USD",
-				quoteCurrency: "EUR",
+				symbol:        "EUR=X",
 				fromTimestamp: 100,
 				toTimestamp:   200,
 				interval:      Interval15Minutes,
@@ -168,8 +166,7 @@ func TestClient_Quotes(t *testing.T) {
 				query:  "/AUD=X?interval=1d&period1=300&period2=400&symbol=AUD%3DX",
 			},
 			args: args{
-				baseCurrency:  "USD",
-				quoteCurrency: "AUD",
+				symbol:        "AUD=X",
 				fromTimestamp: 300,
 				toTimestamp:   400,
 				interval:      Interval1Day,
@@ -195,7 +192,7 @@ func TestClient_Quotes(t *testing.T) {
 			c, err := NewClientWithURL("http://localhost")
 			assert.Nil(t, err)
 
-			got, err := c.Quotes(tt.args.baseCurrency, tt.args.quoteCurrency, tt.args.fromTimestamp, tt.args.toTimestamp, tt.args.interval)
+			got, err := c.Quotes(tt.args.symbol, tt.args.fromTimestamp, tt.args.toTimestamp, tt.args.interval)
 
 			if tt.wantErr == nil {
 				assert.Nil(t, err)
@@ -222,8 +219,7 @@ func TestClient_CurrentRate(t *testing.T) {
 		query   string
 	}
 	type args struct {
-		baseCurrency  string
-		quoteCurrency string
+		symbol string
 	}
 	tests := []struct {
 		name    string
@@ -248,8 +244,7 @@ func TestClient_CurrentRate(t *testing.T) {
 				query: "?&symbols=EUR=X&fields=extendedMarketChange,extendedMarketChangePercent,extendedMarketPrice,extendedMarketTime,regularMarketChange,regularMarketChangePercent,regularMarketPrice,regularMarketTime,circulatingSupply,ask,askSize,bid,bidSize,dayHigh,dayLow,regularMarketDayHigh,regularMarketDayLow,regularMarketVolume,volume",
 			},
 			args: args{
-				baseCurrency:  "USD",
-				quoteCurrency: "EUR",
+				symbol: "EUR=X",
 			},
 			want: &ExchangeRate{
 				Buy:       10.1,
@@ -265,8 +260,7 @@ func TestClient_CurrentRate(t *testing.T) {
 				query:  "?&symbols=AUD=X&fields=extendedMarketChange,extendedMarketChangePercent,extendedMarketPrice,extendedMarketTime,regularMarketChange,regularMarketChangePercent,regularMarketPrice,regularMarketTime,circulatingSupply,ask,askSize,bid,bidSize,dayHigh,dayLow,regularMarketDayHigh,regularMarketDayLow,regularMarketVolume,volume",
 			},
 			args: args{
-				baseCurrency:  "USD",
-				quoteCurrency: "AUD",
+				symbol: "AUD=X",
 			},
 			want:    nil,
 			wantErr: errors.New("some-get-json-error"),
@@ -289,7 +283,7 @@ func TestClient_CurrentRate(t *testing.T) {
 			c, err := NewClientWithURL("http://localhost")
 			assert.Nil(t, err)
 
-			got, err := c.CurrentRate(tt.args.baseCurrency, tt.args.quoteCurrency)
+			got, err := c.CurrentRate(tt.args.symbol)
 
 			if tt.wantErr == nil {
 				assert.Nil(t, err)
@@ -311,7 +305,7 @@ func TestClient_IT_CurrentRate_ShouldParseValueFromServer(t *testing.T) {
 	client, err := NewClientWithURL(ts.URL)
 	assert.Nil(t, err)
 
-	rate, err := client.CurrentRate("EUR", "USD")
+	rate, err := client.CurrentRate("EURUSD=X")
 	assert.Nil(t, err)
 
 	assert.Equal(t, &ExchangeRate{

@@ -32,11 +32,9 @@ func NewClientWithURL(u string) (*Client, error) {
 	}, nil
 }
 
-// Quotes retrieves the price quotes for the specified currency pair within the
+// Quotes retrieves the price quotes for the specified symbol within the
 // required timeframe
-func (c *Client) Quotes(baseCurrency string, quoteCurrency string, fromTimestamp uint64, toTimestamp uint64, interval Interval) ([]*PriceQuote, error) {
-
-	symbol := currencyPairSymbol(baseCurrency, quoteCurrency)
+func (c *Client) Quotes(symbol string, fromTimestamp uint64, toTimestamp uint64, interval Interval) ([]*PriceQuote, error) {
 
 	c.baseURL.Path = path.Join("v8/finance/chart", symbol)
 	c.baseURL.RawQuery = chart.QuotesQuery(symbol, fromTimestamp, toTimestamp, interval.String())
@@ -50,11 +48,9 @@ func (c *Client) Quotes(baseCurrency string, quoteCurrency string, fromTimestamp
 	return mapYahooResponseToQuote(response), nil
 }
 
-// CurrentRate retrieves the current exchange rate for the specified currency
+// CurrentRate retrieves the current exchange rate for the specified symbol
 // pair
-func (c *Client) CurrentRate(baseCurrency string, quoteCurrency string) (*ExchangeRate, error) {
-
-	symbol := currencyPairSymbol(baseCurrency, quoteCurrency)
+func (c *Client) CurrentRate(symbol string) (*ExchangeRate, error) {
 
 	c.baseURL.Path = "v7/finance/quote"
 	c.baseURL.RawQuery = quote.Query(symbol)

@@ -1,8 +1,8 @@
-package client
+package currency
 
 import "testing"
 
-func Test_currencyPairSymbol(t *testing.T) {
+func Test_CurrencyPairSymbol(t *testing.T) {
 	type args struct {
 		from string
 		to   string
@@ -35,8 +35,8 @@ func Test_currencyPairSymbol(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.want, func(t *testing.T) {
-			if got := currencyPairSymbol(tt.args.from, tt.args.to); got != tt.want {
-				t.Errorf("currencyPairSymbol() = %v, want %v", got, tt.want)
+			if got := PairSymbol(tt.args.from, tt.args.to); got != tt.want {
+				t.Errorf("PairSymbol() = %v, want %v", got, tt.want)
 			}
 		})
 	}
