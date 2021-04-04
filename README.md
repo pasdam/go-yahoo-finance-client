@@ -5,3 +5,7 @@
 [![GoDoc](https://godoc.org/github.com/pasdam/go-yahoo-finance-client?status.svg)](https://godoc.org/github.com/pasdam/go-yahoo-finance-client)
 
 Golang client library to interact with Yahoo Finance API.
+
+## Deprecated
+
+This library is deprecated in favour of [yahoo-finance-openapi](https://github.com/pasdam/yahoo-finance-openapi).
